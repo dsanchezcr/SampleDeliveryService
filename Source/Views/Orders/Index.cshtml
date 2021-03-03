@@ -1,0 +1,118 @@
+﻿@model IEnumerable<SampleDeliveryService.Models.Order>
+
+@{
+    ViewData["Title"] = "Sample Delivery Service";
+}
+<script type='text/javascript'>
+    function GetMap() {
+        var resolveFunc = null;
+        var rejectFunc = null;
+        function tokenResolver() {
+            if (this.readyState === 4 && this.status === 200) {
+                resolveFunc(this.responseText);
+            } else if (this.status !== 200) {
+                rejectFunc(this.responseText);
+            }
+        }
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        var map, animation;
+        //Initialize a map instance.
+        map = new atlas.Map('myMap', {
+            center: [-122.33, 47.6],
+            zoom: 9,
+            view: 'Auto',
+            language: 'en-US',
+            authOptions: {
+                authType: "anonymous",
+                clientId: getClientId(),
+                getToken: function (resolve, reject, map) {
+                    var xhttp = new XMLHttpRequest();
+                    var url = "/api/token";
+                    resolveFunc = resolve;
+                    rejectFunc = reject;
+                    xhttp.open("GET", url, true);
+                    xhttp.setRequestHeader("Authorization", 'Bearer ' + getCookie("Authorization"));
+                    xhttp.onreadystatechange = tokenResolver;
+                    xhttp.send();
+                }
+            }
+        });
+
+        //Wait until the map resources are ready.
+        map.events.add('ready', function () {
+
+            //Create a data source and add it to the map.
+            datasource = new atlas.source.DataSource();
+            map.sources.add(datasource);
+
+            //Add a layer for rendering point data.
+            var resultLayer = new atlas.layer.SymbolLayer(datasource, null, {
+                iconOptions: {
+                    image: 'pin-round-darkblue',
+                    anchor: 'center',
+                    allowOverlap: true
+                },
+                textOptions: {
+                    anchor: "top"
+                }
+            });
+
+            map.layers.add(resultLayer);
+        });
+
+        //Wait until the map resources are ready.
+        map.events.add('ready', function () {
+
+            //Create a data source and add it to the map.
+            datasource = new atlas.source.DataSource();
+            map.sources.add(datasource);
+
+            //Add a layer for rendering point data. This could be any layer that supports rendering point data.
+            map.layers.add(new atlas.layer.SymbolLayer(datasource, null, {
+                iconOptions: {
+                    //Grab the offset from the shape.
+                    offset: ['get', 'offset'],
+
+                    //Grab the opacity from the shape. Opacity will be used to hide the shape when progress of the animation is 0.
+                    //  opacity: ['get', 'opacity'],
+
+                    //For smoother animation, ignore the placement of the icon. This skips the label collision calculations and allows the icon to overlap map labels.
+                    ignorePlacement: true,
+
+                    //For smoother animation, allow symbol to overlap all other symbols on the map.
+                    allowOverlap: true
+                }
+            }));
+
+            //If animations are already loaded, play them.
+            if (animation) {
+                animation.play();
+            } else {
+                //Create random points and animate them being dropped onto the map.
+                var points = [];
+
+                @foreach (var order in Model)
+                {
+                    if(order!=null)
+                    {
+                        string addressPoint =  order.Longitude + "," + order.Latitude;
+                        <text>points.push(new atlas.data.Point([@addressPoint]));</text>
+                    }
+                }
+                animation = atlas.animations.drop(points, datasource, null, { easing: 'easeOutBounce', duration: 1000, autoPlay: true });
+            }
+
+        });
+    }
+</script>
+<p>Pending deliveries:</p>
+<div id="myMap"></div>

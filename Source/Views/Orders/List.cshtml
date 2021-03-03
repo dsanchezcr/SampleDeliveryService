@@ -1,0 +1,159 @@
+﻿@model IEnumerable<SampleDeliveryService.Models.Order>
+
+@{
+    ViewData["Title"] = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>List</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Packages)
+            </th>           
+            <th>
+                @Html.DisplayNameFor(model => model.Completed)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Packages)
+            </td>          
+            <td>
+                @Html.DisplayFor(modelItem => item.Completed)
+            </td>
+            <td>
+                @Html.ActionLink("Route", "Route", new { id = item.Id }) |
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<script type='text/javascript'>
+    function GetMap() {
+        var resolveFunc = null;
+        var rejectFunc = null;
+        function tokenResolver() {
+            if (this.readyState === 4 && this.status === 200) {
+                resolveFunc(this.responseText);
+            } else if (this.status !== 200) {
+                rejectFunc(this.responseText);
+            }
+        }
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        var map, animation;
+        //Initialize a map instance.
+        map = new atlas.Map('myMap', {
+            center: [-122.33, 47.6],
+            zoom: 8,
+            view: 'Auto',
+            language: 'en-US',
+            authOptions: {
+                authType: "anonymous",
+                clientId: getClientId(),
+                getToken: function (resolve, reject, map) {
+                    var xhttp = new XMLHttpRequest();
+                    var url = "/api/token";
+                    resolveFunc = resolve;
+                    rejectFunc = reject;
+                    xhttp.open("GET", url, true);
+                    xhttp.setRequestHeader("Authorization", 'Bearer ' + getCookie("Authorization"));
+                    xhttp.onreadystatechange = tokenResolver;
+                    xhttp.send();
+                }
+            }
+        });
+
+        //Wait until the map resources are ready.
+        map.events.add('ready', function () {
+
+            //Create a data source and add it to the map.
+            datasource = new atlas.source.DataSource();
+            map.sources.add(datasource);
+
+            //Add a layer for rendering point data.
+            var resultLayer = new atlas.layer.SymbolLayer(datasource, null, {
+                iconOptions: {
+                    image: 'pin-round-darkblue',
+                    anchor: 'center',
+                    allowOverlap: true
+                },
+                textOptions: {
+                    anchor: "top"
+                }
+            });
+
+            map.layers.add(resultLayer);
+        });
+
+        //Wait until the map resources are ready.
+        map.events.add('ready', function () {
+
+            //Create a data source and add it to the map.
+            datasource = new atlas.source.DataSource();
+            map.sources.add(datasource);
+            //Add a layer for rendering point data as symbols.
+            map.layers.add(new atlas.layer.SymbolLayer(datasource));
+
+            @foreach (var order in Model)
+            {
+                if(order!=null)
+                {
+                    string addressPoint =  order.Longitude + "," + order.Latitude;
+                    string orderNo = order.Id;
+                    string color = "";
+                    if (order.Completed) { color = "MediumSeaGreen"; } else { color = "DodgerBlue"; }
+                    <text>
+                        map.markers.add(new atlas.HtmlMarker({
+                            color: '@color',
+                            text: '@orderNo',
+                            position: [@addressPoint]
+                        }));
+                    </text>
+                }
+            }
+        });
+    }
+</script>
+<div id="myMap"></div>
+
+
