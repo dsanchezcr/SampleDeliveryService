@@ -2,7 +2,7 @@
 
 ## Overview
 
-The objective of this sample application is to track orders, it store the customer information with their address, you can edit the order to change the address or marked it as completed. In the home page you can see all the pending deliveries and in the list view you get a table of the orders and a map of which orders are completed and pending. For each order you can request a route from your location to the customer's address, see the details, edit or delete the order. When you create a new order you just need to enter the address and the application automatically will get the street number, city, state and zip code. In each view you will get a map showing the address.
+The objective of this sample application is to track orders, it stores the customer information with their address, you can edit the order to change the address or marked it as completed. In the home page you can see all the pending deliveries and in the list view you get a table of the orders and a map of which orders are completed and pending. For each order you can request a route from your location to the customer's address, see the details, edit or delete the order. When you create a new order you just need to enter the address and the application automatically will get the street number, city, state and zip code. In each view you will get a map showing the address.
 
 ![Application](Images/App.gif)
 
@@ -13,6 +13,14 @@ This project is a sample delivery service application using [Azure Maps](https:/
 The following diagram shows the services and interaction of the different components in the application:
 
 ![Diagram](Images/AppDiagram.png)
+
+## Learn Azure Maps
+
+Here are some resources to learn more about Azure Maps:
+
+1. [Azure Maps Overview](https://azure.microsoft.com/services/azure-maps)
+2. [Azure Maos Documentation](https://docs.microsoft.com/en-us/azure/azure-maps)
+3. [Azure Maps Web SDK Samples](https://azuremapscodesamples.azurewebsites.net)
 
 ## Deployment
 
